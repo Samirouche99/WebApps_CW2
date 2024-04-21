@@ -1,0 +1,33 @@
+{
+  "name": "webapps_cw2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samirouche99/WebApps_CW2.git"
+  },
+  "author": "Samira Amirouche",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Samirouche99/WebApps_CW2/issues"
+  },
+  "homepage": "https://github.com/Samirouche99/WebApps_CW2#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.0.1",
+    "gray-nedb": "^1.8.3",
+    "jsonwebtoken": "^9.0.2",
+    "mustache": "^4.2.0",
+    "mustache-express": "^1.3.2",
+    "nedb": "^1.8.0"
+  }
+}
