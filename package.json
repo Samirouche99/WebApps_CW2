@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "postinstall": "npm install dotenv",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,6 +22,7 @@
     "bcrypt": "^5.1.1",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "express-validator": "^7.0.1",
@@ -31,7 +33,6 @@
     "nedb": "^1.8.0"
   },
   "engines": {
-     "node": "v21.6.1"
-    }
-    
+    "node": "v21.6.1"
+  }
 }
