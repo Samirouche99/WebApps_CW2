@@ -72,8 +72,13 @@ app.use('/', pantryRoutes);
 // Start the server
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}. Ctrl+C to quit.`);
+});
+
+// Error handling
+server.on('error', (err) => {
+    console.error('Server error:', err.message);
 });
 
 module.exports = app;
