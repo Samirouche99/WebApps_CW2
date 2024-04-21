@@ -70,6 +70,7 @@ const pantryRoutes = require('./routes/pantryRoutes');
 app.use('/', pantryRoutes);
 
 // Start the server
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}. Ctrl+C to quit.`);
