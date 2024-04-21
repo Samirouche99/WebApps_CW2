@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+{{>header}}
+</head>
+<body>
+
+
+  {{>nav}}
+
+
+<div class="container mt-4">
+  {{#user}}
+  <div class="text-right mb-3">
+    <a href="/new" class="btn btn-primary">Add new food item</a>
+  </div>
+  {{/user}}
+
+  <div class="row">
+    <div class="col-md-8">
+      <h2>Available Food Items</h2>
+      <ul class="list-group">
+        {{#Pantry}}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{name}}
+          <span>Expires: {{expDate}} | Quantity: {{quantity}}</span>
+          <!-- Add to Basket Form -->
+          <form action="/addToBasket" method="POST" class="form-inline">
+            <input type="hidden" name="itemId" value="{{_id}}">
+            <input type="number" name="quantity" value="1" min="1" max="{{quantity}}" class="form-control mr-2" required>
+            <button type="submit" class="btn btn-primary">Add to Basket</button>
+          </form>
+        </li>
+        {{/Pantry}}
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h2>Search for Products</h2>
+      <form action="/search" method="GET">
+        <div class="form-group">
+          <label for="searchInput">Search Product:</label>
+          <input type="text" id="searchInput" name="q" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success">Search</button>
+      </form>
+      <div class="user-actions mt-4">
+        {{#user}}
+          <a id="logout" href="/logout" class="btn btn-primary">Sign out</a>
+        {{/user}}
+        {{^user}}
+          <a id="register" href="/register" class="btn btn-primary">Register</a>
+          <a id="login" href="/login" class="btn btn-primary">Sign in</a>
+          <a id="adminLogin" href="/adminLogin" class="btn btn-primary">Sign in as Admin</a>
+        {{/user}}
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

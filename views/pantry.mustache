@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Sharing App</title>
+  <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+{{>header}}
+<h1>{{title}}</h1>
+{{>nav}}
+
+<form action="/search" method="GET">
+  <label for="searchInput">Search Product:</label>
+  <input type="text" id="searchInput" name="q" required>
+  <button type="submit">Search</button>
+</form>
+
+<ul>
+  {{#Pantry}}
+    <li>
+      {{name}} - Expires: {{expDate}}, Quantity: {{quantity}}
+      <form action="/addToBasket" method="post">
+        <input type="hidden" name="itemId" value="{{_id}}">
+        <input type="number" name="quantity" value="1" min="1" max="{{quantity}}">
+        <button type="submit">Add to Basket</button>
+      </form>
+    </li>
+  {{/Pantry}}
+</ul>
+
+<a href="/viewBasket">View Basket</a>
+
+</body>
+</html>

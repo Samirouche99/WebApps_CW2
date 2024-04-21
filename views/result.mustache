@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {{> header}}
+  <title>Search Results</title>
+</head>
+<body>
+  {{> nav}}
+  <div class="container mt-4">
+    <h1>Search Results</h1>
+    <div class="row">
+      <div class="col-md-8">
+        <ul class="list-group">
+          {{#Results}}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{name}} | Expires: {{expDate}} | Quantity: {{quantity}}</span>
+            </li>
+          {{/Results}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

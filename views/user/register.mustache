@@ -1,0 +1,27 @@
+<html>
+<head>
+  {{> header}}
+</head>
+{{> nav}}
+<body class="container">
+<h1>{{title}}</h1>
+<h2>New User Registration</h2>
+<form method="post" role="/register">
+  <div class="form-group">
+    {{#error}}
+      <div class="alert alert-danger" role="alert">{{error}}</div>
+    {{/error}}
+
+    <label for="username">User Name</label>
+    <input type="text" class="form-control" id="username" name="username" placeholder="Enter user name" required>
+  </div>
+  <div class="form-group">
+    <label for="password">Password (6 characters minimum)</label>
+    <input type="password" class="form-control" id="pass" name="pass" placeholder="Enter password" minlength="6" required>
+  </div>
+  <div class="form-group">
+    <input type="submit" value="Register" class="btn btn-primary">
+  </div>
+</form>
+</body>
+</html>

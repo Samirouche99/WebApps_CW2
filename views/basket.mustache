@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{{>header}}
+</head>
+<body>
+  {{>nav}}
+</nav>
+
+<div class="container mt-4">
+  <h1>Your Basket</h1>
+  <ul class="list-group">
+    {{#items}}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{name}} - Quantity: {{quantity}}
+        <!-- Remove one item from the basket -->
+        <div>
+          <form action="/removeFromBasket" method="post" class="d-inline">
+            <input type="hidden" name="itemId" value="{{_id}}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn btn-danger btn-sm">Remove One</button>
+          </form>
+          <!-- Add one more item to the basket -->
+          <form action="/addToBasketInBasket" method="post" class="d-inline">
+            <input type="hidden" name="itemId" value="{{_id}}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn btn-success btn-sm">Add One</button>
+          </form>
+        </div>
+      </li>
+    {{/items}}
+    {{^items}}
+      <li class="list-group-item">Your basket is empty.</li>
+    {{/items}}
+  </ul>
+  <form action="/checkoutBasket" method="post">
+    <button type="submit" class="btn btn-success">Checkout</button>
+  </form>
+</div>
+
+</body>
+</html>
