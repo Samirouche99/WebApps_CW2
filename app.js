@@ -3,20 +3,13 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const session = require('express-session');
-const Basket = require('./models/basketModel'); // Ensure this path correctly points to your Basket model
-const Pantry = require('./models/pantryModel');
+//const session = require('express-session');
 
 const app = express();
-const pantryDb = new Pantry('path/to/pantry.db');
-const basketDb = new Basket(pantryDb, 'path/to/basket.db');
 require('dotenv').config();
 
 // Pass basketDb to routes or controllers that need it
-app.use((req, res, next) => {
-    req.basketDb = basketDb;
-    next();
-});
+
 /*
 // Session configuration
 app.use(session({
