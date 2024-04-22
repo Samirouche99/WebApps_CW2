@@ -6,15 +6,31 @@ const path = require('path');
 const session = require('express-session');
 const Basket = require('./models/basketModel'); // Ensure this path correctly points to your Basket model
 
+// Redis setup
+const redis = require('redis');
+const RedisStore = require('connect-redis')(session);
+const redisClient = redis.createClient({
+    url: process.env.REDIS_URL  // Ensure this is set in your .env or defined directly here
+});
+
+redisClient.on('error', function(err) {
+    console.log('Redis error: ', err);
+});
+
 const app = express();
 require('dotenv').config();
 
 // Session configuration
 app.use(session({
-    secret: 'your_secret_key',  // Choose a robust secret key for production
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESS_SECRET, // Using the secret from your .env
     resave: false,
-    saveUninitialized: true,  // Set to false if you want sessions to be saved only when modified
-    cookie: { secure: process.env.NODE_ENV === 'production' }  // Secure cookies require an HTTPS environment
+    saveUninitialized: true,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Ensure secure cookies in production
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
 }));
 
 // Middleware for parsing request bodies and cookies
@@ -52,13 +68,6 @@ app.use((req, res, next) => {
     next();
 });
 
-
-app.use((req, res, next) => {
-    console.log("Current Basket:", req.session.basket instanceof Basket ? "Basket Instance" : "Not a Basket Instance");
-    next();
-});
-
-
 // Serve static files and set up view engine
 app.use(express.static('public'));
 app.use('/css', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/css')));
@@ -71,7 +80,6 @@ app.use('/', pantryRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
-
 const server = app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}. Ctrl+C to quit.`);
 });
