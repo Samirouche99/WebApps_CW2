@@ -26,7 +26,7 @@ Upon checkout, basket items are removed from inventory.
 
 Admin Features:
 Admin users have access to additional features such as user management and inventory management.
-Admins can delete users, manage inventory, including adding, updating, or deleting products.
+Admins can update and delete users, manage inventory, including adding, updating, or deleting products.
 
 Responsive Design:
 The application is designed to be responsive, ensuring usability across various devices and screen sizes.
