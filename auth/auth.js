@@ -69,7 +69,8 @@ exports.isAdmin = function(req, res, next) {
         next();
     } else {
         // If user is not an admin, render an error page
-        return res.render('/admin/login', {error: "Error"});
+        return res.status(401).render("user/adminLogin",{ error: "Username or password incorrect" });
+
     }
 }
 

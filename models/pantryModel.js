@@ -180,17 +180,30 @@ deleteEntry(itemId) {
 
 
 decreaseItemQuantity(itemId, quantity) {
-  this.db.update({ _id: itemId }, { $inc: { quantity: -quantity } }, {}, (err) => {
-      if (err) console.error('Failed to decrease item quantity:', err);
+  return new Promise((resolve, reject) => {
+      this.db.update({ _id: itemId }, { $inc: { quantity: -quantity } }, {}, (err, numUpdated) => {
+          if (err) {
+              console.error('Failed to decrease item quantity:', err);
+              reject(err);
+          } else {
+              console.log(`Decreased quantity for item ${itemId}`);
+              resolve(numUpdated);  // Resolve the promise with the number of documents updated
+          }
+      });
   });
 }
 
 increaseItemQuantity(itemId, quantity) {
-  this.db.update({ _id: itemId }, { $inc: { quantity: quantity } }, {}, (err) => {
-      if (err) {
-          console.error('Failed to increase item quantity:', err);
-          throw new Error('Database update failed'); // Throw or handle it more gracefully depending on your error handling strategy
-      }
+  return new Promise((resolve, reject) => {
+      this.db.update({ _id: itemId }, { $inc: { quantity: quantity } }, {}, (err, numUpdated) => {
+          if (err) {
+              console.error('Failed to increase item quantity:', err);
+              reject(err);
+          } else {
+              console.log(`Increased quantity for item ${itemId}`);
+              resolve(numUpdated);  // Resolve the promise with the number of documents updated
+          }
+      });
   });
 }
 

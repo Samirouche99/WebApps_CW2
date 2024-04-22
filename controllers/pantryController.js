@@ -4,14 +4,16 @@ const userDao = require("../models/userModel.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
-const db = new Pantry();
+const pantryDb = new Pantry();
+const Basket = require("../models/basketModel");
+const basketDb = new Basket(); // Basket DB instance
 
 //initialize insance of pantry 
-db.init();
+pantryDb.init();
 
 //render home page
 exports.landing_page = function (req, res) {
-  db.getAllEntries()
+  pantryDb.getAllEntries()
   .then((list) => {
       res.render("landingPage", {
           Pantry: list,
@@ -41,11 +43,6 @@ exports.handle_login = function (req, res) {
               const accessToken = jwt.sign({ username: user.username, userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
                   expiresIn: "1h"
               });
-              // Initialize or retrieve the basket for the session
-              if (!req.session.basket) {
-                  console.log("Initializing new basket for the user");
-                  req.session.basket = new Basket();  // This creates a new basket for the user
-              }
               res.cookie("jwt", accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
               res.redirect("/loggedIn");
           } else {
@@ -59,25 +56,18 @@ exports.handle_login = function (req, res) {
 exports.logout = function (req, res) {
   // Clear the JWT token cookie
   res.clearCookie("jwt");
-  if (req.session && req.session.basket && req.session.basket.items.length > 0) {
-      req.session.basket.clearBasket(db);
-      req.session.basket = null; // Clear the basket
-      req.user = null; // Unset the user
-      req.session.save(err => {
-          if (err) {
-              console.error("Failed to save session:", err);
-              return res.status(500).send("Failed to update session.");
-          }
-          res.status(200).redirect("/");
+  if (req.user && req.user.userId) {
+      basketDb.clearBasket(req.user.userId).then(() => {
+          res.redirect("/");
+      }).catch(err => {
+          console.error("Failed to clear basket:", err);
+          res.status(500).send("Failed to update session.");
       });
   } else {
-      req.user = null;
-      if (req.session) {
-          req.session.basket = null; 
-      }
-      res.status(200).redirect("/");
+      res.redirect("/");
   }
 };
+
 
 //render register page
 exports.show_register_page = function (req, res) {
@@ -102,7 +92,7 @@ exports.post_new_user = function (req, res) {
 //search product return results
 exports.search_product = function (req, res) {
   const query = req.query.q; // Get the search query from request parameters
-  db.searchProduct(query)
+  pantryDb.searchProduct(query)
     .then((results) => {
       res.render("result", { Results: results }); // Render the search results using the results view
     })
@@ -132,7 +122,7 @@ exports.post_new_entry = function (req, res) {
     return;
   }
   const expirationDate = new Date(expDate).toISOString().split('T')[0];
-  db.addEntry(name, expDate, quantity)
+  pantryDb.addEntry(name, expDate, quantity)
     .then(() => res.redirect("/loggedIn"))
     .catch(err => {
       console.error("Error adding item:", err);
@@ -168,32 +158,31 @@ exports.contact_post = function(req, res) {
 };
 
 //add item to basket
-exports.add_to_basket = function(req, res) {
-  if (!req.session.basket) {
-    req.session.basket = new Basket();
-}
-    const { itemId, quantity } = req.body;
-    db.findItemById(itemId).then(item => {
-        if (!item || item.quantity < quantity) {
-            return res.status(404).send('Not enough stock or item not found');
-        }
-        req.session.basket.addToBasket(item, parseInt(quantity), db);
-        res.redirect('/');
-    }).catch(err => {
-        console.error('Error adding item to basket:', err);
-        res.status(500).send("Error processing request");
-    });
+exports.add_to_basket = function (req, res) {
+  const userId = req.user.userId;
+  const { itemId, quantity } = req.body;
+  pantryDb.findItemById(itemId).then(item => {
+      if (!item || item.quantity < quantity) {
+          return res.status(404).send('Not enough stock or item not found');
+      }
+      basketDb.addToBasket(userId, item, parseInt(quantity), pantryDb).then(() => {
+          res.redirect('/');
+      }).catch(err => {
+          console.error('Error adding item to basket:', err);
+          res.status(500).send("Error processing request");
+      });
+  });
 };
 
 
 //add extra item already in basket
 exports.add_to_basket_in_basket = function(req, res) {
   const { itemId, quantity } = req.body;
-  db.findItemById(itemId).then(item => {
+  pantryDb.findItemById(itemId).then(item => {
       if (!item || item.quantity < quantity) {
           return res.status(404).send('Not enough stock or item not found');
       }
-      req.session.basket.addToBasket(item, parseInt(quantity), db);
+      req.session.basket.addToBasket(item, parseInt(quantity), pantryDb);
       res.redirect('/basket');
   }).catch(err => {
       console.error('Error adding item to basket:', err);
@@ -201,14 +190,14 @@ exports.add_to_basket_in_basket = function(req, res) {
   });
 };
 
-//render basket page
+// View basket
 exports.viewBasket = function(req, res) {
-  if (!req.session.basket || req.session.basket.items.length === 0) {
+  if (!req.user || !req.user.userId) {
       return res.render('basket', { user: res.locals.user, items: [] });
   }
-  let basketItems = req.session.basket.getBasketItems();
-  let ids = basketItems.map(item => item._id); 
-  db.findItemsById(ids)
+  basketDb.getBasketItems(req.user.userId).then(basketItems => {
+      let ids = basketItems.map(item => item._id); 
+      pantryDb.findItemsById(ids)
       .then(items => {
           let itemDetails = items.map(dbItem => {
               let basketItem = basketItems.find(b => b._id === dbItem._id);
@@ -219,60 +208,38 @@ exports.viewBasket = function(req, res) {
               };
           });
           res.render('basket', { user: res.locals.user, items: itemDetails });
-      })
-      .catch(err => {
-          console.error("Error retrieving items from database: ", err);
-          res.status(500).send("Error retrieving basket items.");
       });
+  }).catch(err => {
+      console.error("Error retrieving items from database: ", err);
+      res.status(500).send("Error retrieving basket items.");
+  });
 };
 
-//remove item from basket
+// Remove item from basket
 exports.remove_From_Basket = function(req, res) {
-  console.log("Attempting to remove from basket", req.body);
   const { itemId, quantity } = req.body;
-  if (req.session.basket) {
-      console.log("Basket found in session, proceeding to remove item.");
-      req.session.basket.removeFromBasket(itemId, parseInt(quantity), db);
+  basketDb.removeFromBasket(req.user.userId, itemId, parseInt(quantity)).then(() => {
       res.redirect('/basket');
-  } else {
-      console.error("No basket found in session when trying to remove item.");
-      res.status(500).send("No basket found in session.");
-  }
+  }).catch(err => {
+      console.error("No basket found in session when trying to remove item.", err);
+      res.status(500).send("Error processing request.");
+  });
 };
-
 
 //checkout basket removing items from pantry
-exports.checkoutBasket = function(req, res) {
-  if (!req.session.basket) {
-      return res.status(400).send("No basket to checkout.");
-  }
-  Promise.all(req.session.basket.items.map(item => {
-      return new Promise((resolve, reject) => {
-          db.findItemById(item._id).then(pantryItem => {
-              if (!pantryItem) {
-                  reject(new Error("Item not found in pantry."));
-              } else {
-                  let newQuantity = pantryItem.quantity - item.quantity;
-                  if (newQuantity > -1) {
-                      db.updateEntry(item._id, pantryItem.name, pantryItem.expDate, newQuantity)
-                          .then(() => resolve())
-                          .catch(err => reject(err));
-                  } else {
-                      db.deleteEntry(item._id)
-                          .then(() => resolve())
-                          .catch(err => reject(err));
-                  }
-              }
-          }).catch(err => reject(err));
+exports.checkoutBasket = function (req, res) {
+  const userId = req.user.userId;
+  basketDb.getBasketItems(userId).then(items => {
+      Promise.all(items.map(item => {
+          return pantryDb.updateEntry(item._id, item.name, item.expDate, -item.quantity);
+      })).then(() => {
+          basketDb.clearBasket(userId).then(() => {
+              res.redirect('/');
+          });
+      }).catch(err => {
+          console.error("Failed to checkout:", err);
+          res.status(500).send("Error during checkout.");
       });
-  }))
-  .then(() => {
-      req.session.basket.clearBasket(db);  // Clear the basket after checkout and pass 'db'
-      res.redirect('/');  // Redirect to a thank you page or back to the main page
-  })
-  .catch(err => {
-      console.error("Failed to checkout:", err);
-      res.status(500).send("Error during checkout.");
   });
 };
 
@@ -282,7 +249,7 @@ exports.registerAdmin = function(req, res) {
   const { username, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10); 
   const newUser = new User(username, hashedPassword, true); 
-  db.users.insert(newUser, function(err, user) {
+  pantryDb.users.insert(newUser, function(err, user) {
       if (err) {
           res.status(500).send("Failed to create admin user");
       } else {
@@ -302,10 +269,10 @@ exports.adminLogin = function(req, res) {
   const { username, password } = req.body;
   userDao.lookup(username, function(err, user) {
       if (err) {
-          return res.render('adminLogin', { error: "Server error" });
+          return res.render('user/adminLogin', { error: "Server error" });
       }
       if (!user || !user.isAdmin) {
-          return res.render('adminLogin', { error: "Invalid admin credentials"});
+          return res.render('user/adminLogin', { error: "Invalid admin credentials"});
       }
       bcrypt.compare(password, user.password, function(err, result) {
           if (result) {
@@ -313,9 +280,9 @@ exports.adminLogin = function(req, res) {
                   expiresIn: "1h"
               });
               res.cookie("jwt", accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-              res.redirect("/");
+              res.redirect("/adminDashboard");
           } else {
-              return res.render('adminLogin', { error: "Invalid credentials"});
+              return res.render('user/adminLogin', { error: "Invalid credentials"});
           }
       });
   });
@@ -335,7 +302,7 @@ exports.adminDashboard = function(req, res) {
               }
           });
       }),
-      db.getAllEntries() 
+      pantryDb.getAllEntries() 
   ])
   .then(results => {
       res.render('adminDashboard', {
@@ -366,7 +333,7 @@ exports.deleteUser = function(req, res) {
 // Function to add an item
 exports.addItem = function(req, res) {
   const { name, expDate, quantity } = req.body;
-  db.addEntry(name, expDate, quantity)
+  pantryDb.addEntry(name, expDate, quantity)
       .then(() => res.redirect('/adminDashboard'))
       .catch(err => res.status(500).send("Error adding item: " + err));
 };
@@ -375,7 +342,7 @@ exports.addItem = function(req, res) {
 exports.updateItem = function(req, res) {
   const { itemId } = req.params;
   const { name, expDate, quantity } = req.body;
-  db.updateEntry(itemId, name, expDate, quantity)
+  pantryDb.updateEntry(itemId, name, expDate, quantity)
       .then(() => res.redirect('/adminDashboard'))
       .catch(err => res.status(500).send("Error updating item: " + err));
 };
@@ -383,7 +350,7 @@ exports.updateItem = function(req, res) {
 // Function to delete an item
 exports.deleteItem = function(req, res) {
   const itemId = req.params.itemId; 
-  db.deleteEntry(itemId)
+  pantryDb.deleteEntry(itemId)
       .then(() => res.redirect('/adminDashboard')) 
       .catch(err => {
           console.error("Error deleting item: ", err);

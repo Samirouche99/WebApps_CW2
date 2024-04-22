@@ -1,61 +1,95 @@
+const nedb = require('nedb');
+
 class Basket {
-    constructor() {
-        this.items = [];
-    }
-
-    // Method to add an item to the basket
-    addToBasket(item, quantity, pantry) {
-        const index = this.items.findIndex(i => i._id === item._id);
-        if (index > -1) {
-            this.items[index].quantity += quantity;
+    constructor(dbFilePath) {
+        if (dbFilePath) {
+            this.db = new nedb({ filename: dbFilePath, autoload: true });
+            console.log('Basket DB connected to ' + dbFilePath);
         } else {
-            this.items.push({
-                _id: item._id,
-                name: item.name,
-                quantity: quantity
-            });
-        }
-        // Decrease the quantity in the pantry
-        pantry.decreaseItemQuantity(item._id, quantity);
-    }
-
-    // Method to remove an item from the basket
-    removeFromBasket(itemId, quantity, pantry) {
-        const index = this.items.findIndex(i => i._id === itemId);
-        if (index > -1) {
-            this.items[index].quantity -= quantity;
-            if (this.items[index].quantity <= 0) {
-                this.items.splice(index, 1);
-            }
-            // Restore the quantity in the pantry
-            pantry.increaseItemQuantity(itemId, quantity);
+            this.db = new nedb();
         }
     }
 
-    // Method to checkout items from the basket
-    checkOutBasket(itemId, quantity, pantry) {
-        const index = this.items.findIndex(i => i._id === itemId);
-        if (index > -1) {
-            this.items[index].quantity -= quantity;
-            if (this.items[index].quantity <= 0) {
-                this.items.splice(index, 1);
-            }
-            // Restore the quantity in the pantry
-            pantry.decreaseItemQuantity(itemId, quantity);
-        }
+    init() {
     }
-
-    // Method to clear the basket
-    clearBasket(pantry) {
-        this.items.forEach(item => {
-            pantry.increaseItemQuantity(item._id, item.quantity);
+    addToBasket(userId, item, quantity, pantryDb) {
+        return new Promise((resolve, reject) => {
+            this.db.update(
+                { userId: userId, _id: item._id },
+                { $inc: { quantity: quantity }, $set: { name: item.name } },
+                { upsert: true },
+                (err) => {
+                    if (err) {
+                        console.error('Error adding item to basket:', err);
+                        reject(err);
+                    } else {
+                        pantryDb.decreaseItemQuantity(item._id, quantity).then(() => {
+                            console.log(`Item ${item._id} added/updated in basket for user ${userId}`);
+                            resolve();
+                        }).catch(err => reject(err));
+                    }
+                }
+            );
         });
-        this.items = [];
     }
 
-    // Method to get the items in the basket
-    getBasketItems() {
-        return this.items;
+    removeFromBasket(userId, itemId, quantity, pantryDb) {
+        return new Promise((resolve, reject) => {
+            this.db.findOne({ userId: userId, _id: itemId }, (err, item) => {
+                if (err) {
+                    console.error('Error finding item in basket:', err);
+                    reject(err);
+                } else if (item && item.quantity > quantity) {
+                    this.db.update({ userId: userId, _id: itemId }, { $inc: { quantity: -quantity } }, {}, (err) => {
+                        if (err) {
+                            console.error('Error decreasing item quantity:', err);
+                            reject(err);
+                        } else {
+                            pantryDb.increaseItemQuantity(itemId, quantity).then(() => resolve()).catch(err => reject(err));
+                        }
+                    });
+                } else {
+                    this.db.remove({ userId: userId, _id: itemId }, {}, (err) => {
+                        if (err) {
+                            console.error('Error removing item from basket:', err);
+                            reject(err);
+                        } else {
+                            pantryDb.increaseItemQuantity(itemId, item.quantity).then(() => resolve()).catch(err => reject(err));
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+
+    // Clear the basket
+    clearBasket(userId) {
+        return new Promise((resolve, reject) => {
+            this.db.remove({ userId: userId }, { multi: true }, (err, numRemoved) => {
+                if (err) {
+                    console.error('Error clearing basket:', err);
+                    reject(err);
+                } else {
+                    console.log(`Basket cleared for user ${userId}, ${numRemoved} items removed.`);
+                    resolve();
+                }
+            });
+        });
+    }
+
+    // Get the items in the basket
+    getBasketItems(userId) {
+        return new Promise((resolve, reject) => {
+            this.db.find({ userId: userId }, (err, items) => {
+                if (err) {
+                    console.error('Error retrieving basket items:', err);
+                    reject(err);
+                } else {
+                    resolve(items);
+                }
+            });
+        });
     }
 }
 

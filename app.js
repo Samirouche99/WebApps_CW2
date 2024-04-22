@@ -5,10 +5,19 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const session = require('express-session');
 const Basket = require('./models/basketModel'); // Ensure this path correctly points to your Basket model
+const Pantry = require('./models/pantryModel');
 
 const app = express();
+const pantryDb = new Pantry('path/to/pantry.db');
+const basketDb = new Basket(pantryDb, 'path/to/basket.db');
 require('dotenv').config();
 
+// Pass basketDb to routes or controllers that need it
+app.use((req, res, next) => {
+    req.basketDb = basketDb;
+    next();
+});
+/*
 // Session configuration
 app.use(session({
     secret: 'your_secret_key',  
@@ -16,12 +25,29 @@ app.use(session({
     saveUninitialized: true,  
     cookie: { secure: process.env.NODE_ENV === 'production' }  // Secure cookies require an HTTPS environment
 }));
-
+*/
 // Middleware for parsing request bodies and cookies
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+
+app.use((req, res, next) => {
+    const token = req.cookies.jwt;
+    if (token) {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+            if (!err) {
+                req.user = decoded;  // Attaches user info to the request
+                res.locals.user = decoded;  // Makes user data available in views
+                res.locals.isAdmin = decoded.isAdmin;  // Make admin status available in views
+            }
+            next();
+        });
+    } else {
+        next();
+    }
+});
+/*
 // Middleware to decode JWT and set user information
 app.use((req, res, next) => {
     const token = req.cookies.jwt;
@@ -57,7 +83,7 @@ app.use((req, res, next) => {
     console.log("Current Basket:", req.session.basket instanceof Basket ? "Basket Instance" : "Not a Basket Instance");
     next();
 });
-
+*/
 
 // Serve static files and set up view engine
 app.use(express.static('public'));
@@ -68,6 +94,7 @@ app.engine('mustache', require('mustache-express')());
 // Include and use routes from pantryRoutes
 const pantryRoutes = require('./routes/pantryRoutes');
 app.use('/', pantryRoutes);
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
