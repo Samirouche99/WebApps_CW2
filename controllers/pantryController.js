@@ -210,10 +210,12 @@ exports.contact_post = function(req, res) {
 };
 
 
-// In your controller (where you're trying to call db.findItemById)
 
-// In your controller
 exports.add_to_basket = function(req, res) {
+  if (!req.session.basket) {
+    req.session.basket = new Basket();
+}
+
     const { itemId, quantity } = req.body;
     db.findItemById(itemId).then(item => {
         if (!item || item.quantity < quantity) {
