@@ -57,12 +57,35 @@ exports.logout = function (req, res) {
   // Clear the JWT token cookie
   res.clearCookie("jwt");
   if (req.user && req.user.userId) {
-      basketDb.clearBasket(req.user.userId).then(() => {
-          res.redirect("/");
-      }).catch(err => {
-          console.error("Failed to clear basket:", err);
-          res.status(500).send("Failed to update session.");
-      });
+      basketDb.getBasketItems(req.user.userId)
+          .then(items => {
+              return Promise.all(items.map(item => {
+                  return new Promise((resolve, reject) => {
+                      pantryDb.findItemById(item._id)
+                          .then(pantryItem => {
+                              if (!pantryItem) {
+                                  reject(new Error("Item not found in pantry."));
+                              } else {
+                                  let newQuantity = pantryItem.quantity + item.quantity;
+                                  pantryDb.updateEntry(item._id, pantryItem.name, pantryItem.expDate, newQuantity)
+                                      .then(() => resolve())
+                                      .catch(err => reject(err));
+                              }
+                          })
+                          .catch(err => reject(err));
+                  });
+              }));
+          })
+          .then(() => {
+              return basketDb.clearBasket(req.user.userId);
+          })
+          .then(() => {
+              res.redirect("/");
+          })
+          .catch(err => {
+              console.error("Failed to logout:", err);
+              res.status(500).send("Error during logout.");
+          });
   } else {
       res.redirect("/");
   }
