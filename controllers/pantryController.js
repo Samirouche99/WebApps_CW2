@@ -229,22 +229,45 @@ exports.remove_From_Basket = function(req, res) {
   });
 };
 
-// Checkout basket removing items from pantry
-exports.checkoutBasket = function (req, res) {
+exports.checkoutBasket = function(req, res) {
   const userId = req.user.userId;
-  basketDb.getBasketItems(userId).then(items => {
-      Promise.all(items.map(item => {
-          return pantryDb.updateEntry(item._id, item.name, item.expDate, -1); // Adjusted to remove one item at a time
-      })).then(() => {
-          basketDb.clearBasket(userId).then(() => {
-              res.redirect('/');
-          });
-      }).catch(err => {
+
+  basketDb.getBasketItems(userId)
+      .then(items => {
+          return Promise.all(items.map(item => {
+              return new Promise((resolve, reject) => {
+                  pantryDb.findItemById(item._id)
+                      .then(pantryItem => {
+                          if (!pantryItem) {
+                              reject(new Error("Item not found in pantry."));
+                          } else {
+                              let newQuantity = pantryItem.quantity - item.quantity;
+                              if (newQuantity >= 0) {
+                                  pantryDb.updateEntry(item._id, pantryItem.name, pantryItem.expDate, newQuantity)
+                                      .then(() => resolve())
+                                      .catch(err => reject(err));
+                              } else {
+                                  reject(new Error("Not enough stock in the pantry."));
+                              }
+                          }
+                      })
+                      .catch(err => reject(err));
+              });
+          }));
+      })
+      .then(() => {
+          return basketDb.clearBasket(userId);
+      })
+      .then(() => {
+          res.redirect('/');
+      })
+      .catch(err => {
           console.error("Failed to checkout:", err);
           res.status(500).send("Error during checkout.");
       });
-  });
 };
+
+
 
 //regsiter admin... not implemented admin register due to security concerns
 exports.registerAdmin = function(req, res) {
