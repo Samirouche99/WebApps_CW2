@@ -318,6 +318,41 @@ exports.adminDashboard = function(req, res) {
   });
 };
 
+
+
+// Controller method to handle updating user information
+exports.adminUpdateUser = function(req, res) {
+  const userId = req.params.userId;
+  const { username, password } = req.body;
+  console.log("Received user ID:", userId); // Log the received user ID
+  console.log("Received username:", username); // Log the received username
+  console.log("Received password:", password); // Log the received password
+
+  // Check if the user ID exists in the database
+  userDao.lookupById(userId, (err, existingUser) => {
+      if (err) {
+          console.error("Error looking up user:", err);
+          res.status(500).send("Error updating user");
+      } else if (!existingUser) {
+          // If the user ID does not match any existing user
+          console.error("User not found with ID:", userId);
+          res.status(404).send("User not found");
+      } else {
+          // Update the user with the provided username and password
+          userDao.updateUser(userId, username, password, (err) => {
+              if (err) {
+                  console.error("Error updating user:", err);
+                  res.status(500).send("Error updating user");
+              } else {
+                  res.redirect('/adminDashboard');
+              }
+          });
+      }
+  });
+};
+
+
+
 //function to delete user 
 exports.deleteUser = function(req, res) {
   const userId = req.params.userId;
@@ -357,3 +392,16 @@ exports.deleteItem = function(req, res) {
           res.status(500).send("Error deleting item");
       });
 };
+
+
+exports.admin_search_items = function(req,res){
+  const query = req.query.q; // Get the search query from request parameters
+  pantryDb.searchProduct(query)
+    .then((results) => {
+      res.render("adminDashboard", { Results: results }); // Render the search results using the results view
+    })
+    .catch((err) => {
+      console.log("Search failed", err);
+      res.status(500).send("Internal Server Error");
+    });
+}

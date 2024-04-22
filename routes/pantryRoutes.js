@@ -28,10 +28,12 @@ router.post('/adminLogin', controller.adminLogin); // Handle admin login form su
 router.get('/adminDashboard', verifyAdmin, controller.adminDashboard); // Admin dashboard
 // admin operations on users
 router.post('/adminDeleteUser/:userId', verifyAdmin, controller.deleteUser); // Delete user (admin only)
+router.post('/adminUpdateUser/:userId', verifyAdmin, controller.adminUpdateUser);//update user
 // admin operations on items
 router.post('/adminUpdate', verifyAdmin, controller.addItem); // Add item (admin only)
 router.post('/adminUpdate/:itemId', verifyAdmin, controller.updateItem); // Update item (admin only)
 router.post('/adminDelete/:itemId', verifyAdmin, controller.deleteItem); // Delete item (admin only)
+router.get('/adminSearchPantry', verifyAdmin, controller.admin_search_items); // search pantry 
 
 //basket routes
 router.get('/basket', controller.viewBasket); // View basket

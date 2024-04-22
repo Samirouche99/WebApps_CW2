@@ -1,11 +1,11 @@
-{"username":"samira2","password":"$2b$10$6qAuTCIkhLHvhNzV.pWizuSEjE7qv4jouk.XFv24vLlkFU90J7viy","isAdmin":false,"_id":"5lBl7LOAeJVPWCqd"}
-{"username":"SAMIRA","password":"$2b$10$h7nLbnHlX2hKBH2rqFf/5egoa4LSCrxHzBlESVMC3cMH5oI1PK/rC","isAdmin":false,"_id":"Jy6zcIGpf5wVhfNz"}
-{"username":"asasas","password":"$2b$10$vKi.1DxOahfaz4TlIhCw6eoMux3sTC124FgboSPXFQqQczXBF5xfO","isAdmin":false,"_id":"OPN16vufixiPfAnX"}
-{"username":"qwerty","password":"$2b$10$8VinmfcqULxAJA5/w5NnquQ/xLtMOZMBua4Lvp3yNtydcTtrxbS5e","isAdmin":false,"_id":"PUveqdkyN5qK74mg"}
+{"username":"Peters","password":"12345678","isAdmin":false,"_id":"8BQvXGPxBogdu4bc"}
+{"username":"Ann","password":"$2b$10$gn1wF4wJ3LnGB84yNOzBOuMfSnPYWzH0KE/w4VZwaqjzAIfd55NLe","isAdmin":false,"_id":"91xHEGZTHVJrpbUA"}
+{"username":"Annal","password":"$2b$10$vsvhlLPp8OrN24G85acBtein89UEHfioqman8cz5pJsDMKAKiOq/S","isAdmin":false,"_id":"DzEeRAauK1E9j3X7"}
 {"username":"admin","password":"$2b$10$ETyekgcpFya7OSkaXPcHReV1e3D6NaXBRwZ7/hYO96/0h9tI7sOkm","isAdmin":true,"_id":"QqGODH2W54WygIgf"}
-{"username":"Peter","password":"$2b$10$4AmSbwTCZe6gkNc8wlu6Nu9FDL02k89bcp6dC9.lNdfdrovWQ5pCO","isAdmin":false,"_id":"UC0hjdRIXzADaSqG"}
-{"username":"Ann","password":"$2b$10$tG820wMTkrei4IflFC24KO.JOX27khnaDPPMUe/OGaPIfULp//Wa6","isAdmin":false,"_id":"ahZSvNm5AKRnqL9h"}
+{"username":"Anna","password":"Password","isAdmin":false,"_id":"ahZSvNm5AKRnqL9h"}
+{"username":"Peter","password":"$2b$10$Y9bZMRaw596Km/j.jAYXcuB4quUa95anW3Ue3btOauUN5uV2Wg4Ju","isAdmin":false,"_id":"d3VO18vBOYPROgUi"}
 {"username":"samii","password":"$2b$10$yAPzbf9COiGWJ.7.gJHU4O0/vPBMvp8cxf8dNEvc6NBzBbhG/zl4u","isAdmin":false,"_id":"gEjcAk0EkoMYqgG6"}
 {"username":"12345","password":"$2b$10$IvWJXZYA./OzGr7o8Nm6WOAbt1X6z.q61d.RJu6zUTIfWmvTXkvae","isAdmin":false,"_id":"qhk6kNRVcH58iqAz"}
 {"username":"sam","password":"$2b$10$yUrPkge6FRjUhXokz1qBAOBqh7JmVkywvKC/PAM/xVSv8uEPIFWW6","isAdmin":false,"_id":"t5QikDSR0zE5kAZl"}
 {"username":"Samira","password":"$2b$10$0MlW3ileQG4BnguG6jUhSObsGtNSyfJts.gAX83QYIDo3cNawg94e","isAdmin":false,"_id":"zuFP1PQ8up0KvBlR"}
+{"username":"Annas","password":"$2b$10$3t56scGnciH0H5Awl2t2P.cCPexB.c0H2EDRI83c45ZVLyMKyli4O","isAdmin":false,"_id":"91xHEGZTHVJrpbUA"}

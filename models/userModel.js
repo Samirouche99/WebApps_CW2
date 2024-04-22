@@ -83,6 +83,34 @@ class UserDAO {
             else cb(null, numRemoved > 0);
         });
     }
+
+    updateUser(userId, newUsername, newPassword, cb) {
+        bcrypt.hash(newPassword, saltRounds, (err, hash) => {
+            if (err) {
+                return cb(err);
+            }
+            this.db.update({ _id: userId }, { $set: { username: newUsername, password: hash } }, {}, (err, numReplaced) => {
+                if (err) {
+                    cb(err);
+                } else {
+                    cb(null);
+                }
+            });
+        });
+    }
+    
+
+    // Method to lookup a user by ID
+lookupById(userId, cb) {
+    this.db.findOne({ _id: userId }, function (err, user) {
+        if (err || !user) {
+            return cb(err || 'User not found');
+        } else {
+            return cb(null, user);
+        }
+    });
+}
+
 }
 
 const dao = new UserDAO('path/to/users.db');  

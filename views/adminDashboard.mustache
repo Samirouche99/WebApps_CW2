@@ -1,4 +1,3 @@
-<!-- adminDashboard.mustache -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,68 +5,98 @@
     <title>Admin Dashboard</title>
 </head>
 <body>
-{{>nav}}
+
 <div class="container mt-4">
 <div class="container text-right mt-4 mb-4">
     <a id="logout" href="/logout" class="btn btn-primary">Sign out</a>
 </div>
     <h1 class="mb-4">Admin Dashboard</h1>
-    <div class="mb-5">
-        <h2>User Management</h2>
-        <table class="table table-striped">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Username</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#users}}
-                <tr>
-                    <td>{{username}}</td>
-                    <td>
-                        <form action="/adminDeleteUser/{{_id}}" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {{/users}}
-            </tbody>
-        </table>
-    </div>
+    
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4" id="adminTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="user-tab" data-toggle="tab" href="#user" role="tab" aria-controls="user" aria-selected="true">User Management</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pantry-tab" data-toggle="tab" href="#pantry" role="tab" aria-controls="pantry" aria-selected="false">Pantry Item Management</a>
+        </li>
+    </ul>
 
-    <div>
-        <h2>Pantry Item Management</h2>
-        <table class="table table-hover">
-            <thead class="thead-light">
-                <tr>
-                    <th>Item Name</th>
-                    <th>Expire Date</th>
-                    <th>Quantity</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#Pantry}}
-                <tr>
-                    <td>{{name}}</td>
-                    <td>{{expDate}}</td>
-                    <td>{{quantity}}</td>
-                    <td>
-                        <form action="/adminUpdate/{{_id}}" method="post" class="d-inline">
-                            <input type="text" name="name" value="{{name}}" class="form-control mb-2 mr-sm-2">
-                            <input type="date" name="expDate" value="{{expDate}}" class="form-control mb-2 mr-sm-2">
-                            <input type="number" name="quantity" value="{{quantity}}" class="form-control mb-2 mr-sm-2">
-                            <button type="submit" class="btn btn-primary mb-2">Update</button>
-                        </form>
-                        <form action="/adminDelete/{{_id}}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-danger mb-2">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {{/Pantry}}
-            </tbody>
-        </table>
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- User Management Tab -->
+        <div class="tab-pane fade show active" id="user" role="tabpanel" aria-labelledby="user-tab">
+            <div class="mb-5">
+                <!-- User Management Table -->
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#users}}
+                        <tr>
+                            <td>{{username}}</td>
+                            <td>********</td> <!-- Display password as asterisks for security -->
+                            <td>
+                                <!-- Update Form for User -->
+                                <form action="/adminUpdateUser/{{_id}}" method="post" class="d-inline">
+                                    <input type="text" name="username" value="{{username}}" class="form-control mb-2 mr-sm-2">
+                                    <input type="password" name="password" placeholder="New Password" class="form-control mb-2 mr-sm-2">
+                                    <button type="submit" class="btn btn-primary mb-2">Update</button>
+                                </form>
+                                <!-- Delete Form for User -->
+                                <form action="/adminDeleteUser/{{_id}}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger mb-2">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{/users}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Pantry Item Management Tab -->
+        <div class="tab-pane fade" id="pantry" role="tabpanel" aria-labelledby="pantry-tab">
+            <div>
+                <!-- Pantry Item List -->
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Expire Date</th>
+                            <th>Quantity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#Pantry}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{expDate}}</td>
+                            <td>{{quantity}}</td>
+                            <td>
+                                <!-- Update Form for Pantry Item -->
+                                <form action="/adminUpdate/{{_id}}" method="post" class="d-inline">
+                                    <input type="text" name="name" value="{{name}}" class="form-control mb-2 mr-sm-2">
+                                    <input type="date" name="expDate" value="{{expDate}}" class="form-control mb-2 mr-sm-2">
+                                    <input type="number" name="quantity" value="{{quantity}}" class="form-control mb-2 mr-sm-2">
+                                    <button type="submit" class="btn btn-primary mb-2">Update</button>
+                                </form>
+                                <!-- Delete Form for Pantry Item -->
+                                <form action="/adminDelete/{{_id}}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger mb-2">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{/Pantry}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
