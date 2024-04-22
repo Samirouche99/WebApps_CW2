@@ -9,20 +9,12 @@ const Basket = require('./models/basketModel'); // Ensure this path correctly po
 const app = express();
 require('dotenv').config();
 
-const RedisStore = require('connect-redis')(session);
-const redis = require('redis');
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URL, // Heroku sets this environment variable
-  legacyMode: true
-});
-redisClient.connect().catch(console.error);
-
+// Session configuration
 app.use(session({
-  store: new RedisStore({ client: redisClient }),
-  secret: 'your_secret_key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
+    secret: 'your_secret_key',  // Choose a robust secret key for production
+    resave: false,
+    saveUninitialized: true,  // Set to false if you want sessions to be saved only when modified
+    cookie: { secure: process.env.NODE_ENV === 'production' }  // Secure cookies require an HTTPS environment
 }));
 
 // Middleware for parsing request bodies and cookies
