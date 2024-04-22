@@ -175,21 +175,24 @@ exports.add_to_basket = function (req, res) {
 };
 
 
-//add extra item already in basket
+// Add item to basket from basket page
 exports.add_to_basket_in_basket = function(req, res) {
   const { itemId, quantity } = req.body;
   pantryDb.findItemById(itemId).then(item => {
       if (!item || item.quantity < quantity) {
           return res.status(404).send('Not enough stock or item not found');
       }
-      req.session.basket.addToBasket(item, parseInt(quantity), pantryDb);
-      res.redirect('/basket');
+      basketDb.addToBasket(req.user.userId, item, parseInt(quantity), pantryDb).then(() => {
+          res.redirect('/basket');
+      }).catch(err => {
+          console.error('Error adding item to basket:', err);
+          res.status(500).send("Error processing request");
+      });
   }).catch(err => {
-      console.error('Error adding item to basket:', err);
+      console.error('Error retrieving item from pantry:', err);
       res.status(500).send("Error processing request");
   });
 };
-
 // View basket
 exports.viewBasket = function(req, res) {
   if (!req.user || !req.user.userId) {
@@ -218,20 +221,20 @@ exports.viewBasket = function(req, res) {
 // Remove item from basket
 exports.remove_From_Basket = function(req, res) {
   const { itemId, quantity } = req.body;
-  basketDb.removeFromBasket(req.user.userId, itemId, parseInt(quantity)).then(() => {
+  basketDb.removeFromBasket(req.user.userId, itemId, parseInt(quantity), pantryDb).then(() => {
       res.redirect('/basket');
   }).catch(err => {
-      console.error("No basket found in session when trying to remove item.", err);
+      console.error("Error removing item from basket:", err);
       res.status(500).send("Error processing request.");
   });
 };
 
-//checkout basket removing items from pantry
+// Checkout basket removing items from pantry
 exports.checkoutBasket = function (req, res) {
   const userId = req.user.userId;
   basketDb.getBasketItems(userId).then(items => {
       Promise.all(items.map(item => {
-          return pantryDb.updateEntry(item._id, item.name, item.expDate, -item.quantity);
+          return pantryDb.updateEntry(item._id, item.name, item.expDate, -1); // Adjusted to remove one item at a time
       })).then(() => {
           basketDb.clearBasket(userId).then(() => {
               res.redirect('/');
@@ -242,7 +245,6 @@ exports.checkoutBasket = function (req, res) {
       });
   });
 };
-
 
 //regsiter admin... not implemented admin register due to security concerns
 exports.registerAdmin = function(req, res) {
