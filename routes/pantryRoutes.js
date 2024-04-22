@@ -35,7 +35,7 @@ router.post('/adminDelete/:itemId', verifyAdmin, controller.deleteItem); // Dele
 
 //basket routes
 router.get('/basket', controller.viewBasket); // View basket
-router.post('/addToBasket', controller.add_to_basket); // Add item to basket
+router.post('/addToBasket', verify, controller.add_to_basket); // Add item to basket
 router.post('/addToBasketInBasket', controller.add_to_basket_in_basket); // Add item to basket from basket page
 router.post('/removeFromBasket', controller.remove_From_Basket); // Remove item from basket
 router.get('/viewBasket', controller.viewBasket); // View basket (logged in user only)
