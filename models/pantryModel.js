@@ -21,12 +21,12 @@ class Pantry {
       if (count === 0) {
         this.db.insert([
           
-            { _id: '8', name: 'Apple', expDate: '2024-04-25', quantity: 15 },
+            { _id: '8', name: 'Apple', expDate: '2024-04-25', quantity: 5 },
             { _id: '2', name: 'Banana', expDate: '2024-05-10', quantity: 10 },
             { _id: '3', name: 'Orange', expDate: '2024-05-15', quantity: 7 },
             { _id: '4', name: 'Mango', expDate: '2024-04-20', quantity: 12 },
             { _id: '5', name: 'Peach', expDate: '2024-05-05', quantity: 4 },
-            { _id: '36', name: 'Pear', expDate: '2024-06-01', quantity: 20 },
+            { _id: '36', name: 'Pear', expDate: '2024-06-01', quantity:  5},
             { _id: '14', name: 'Kiwi', expDate: '2024-05-01', quantity: 18 },
             { _id: '24', name: 'Blueberry', expDate: '2024-04-22', quantity: 6 },
             { _id: '93', name: 'Strawberry', expDate: '2024-04-30', quantity: 25 },
@@ -36,7 +36,7 @@ class Pantry {
             { _id: '15', name: 'Melon', expDate: '2024-04-28', quantity: 10 },
             { _id: '222', name: 'Blackberry', expDate: '2024-05-15', quantity: 9 },
             { _id: '35', name: 'Raspberry', expDate: '2024-06-20', quantity: 14 },
-            { _id: '11', name: 'Lemon', expDate: '2024-05-22', quantity: 16 },
+            { _id: '11', name: 'Lemon', expDate: '2024-05-22', quantity: 8 },
             { _id: '22', name: 'Lime', expDate: '2024-06-10', quantity: 12 },
             { _id: '33', name: 'Grapefruit', expDate: '2024-05-30', quantity: 11 },
             { _id: '43', name: 'Plum', expDate: '2024-05-01', quantity: 7 }
