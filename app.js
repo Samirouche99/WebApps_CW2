@@ -11,9 +11,9 @@ require('dotenv').config();
 
 // Session configuration
 app.use(session({
-    secret: 'your_secret_key',  // Choose a robust secret key for production
+    secret: 'your_secret_key',  
     resave: false,
-    saveUninitialized: true,  // Set to false if you want sessions to be saved only when modified
+    saveUninitialized: true,  
     cookie: { secure: process.env.NODE_ENV === 'production' }  // Secure cookies require an HTTPS environment
 }));
 

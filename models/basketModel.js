@@ -3,6 +3,7 @@ class Basket {
         this.items = [];
     }
 
+    // Method to add an item to the basket
     addToBasket(item, quantity, pantry) {
         const index = this.items.findIndex(i => i._id === item._id);
         if (index > -1) {
@@ -18,6 +19,7 @@ class Basket {
         pantry.decreaseItemQuantity(item._id, quantity);
     }
 
+    // Method to remove an item from the basket
     removeFromBasket(itemId, quantity, pantry) {
         const index = this.items.findIndex(i => i._id === itemId);
         if (index > -1) {
@@ -29,6 +31,8 @@ class Basket {
             pantry.increaseItemQuantity(itemId, quantity);
         }
     }
+
+    // Method to checkout items from the basket
     checkOutBasket(itemId, quantity, pantry) {
         const index = this.items.findIndex(i => i._id === itemId);
         if (index > -1) {
@@ -40,16 +44,19 @@ class Basket {
             pantry.decreaseItemQuantity(itemId, quantity);
         }
     }
+
+    // Method to clear the basket
     clearBasket(pantry) {
         this.items.forEach(item => {
             pantry.increaseItemQuantity(item._id, item.quantity);
         });
         this.items = [];
     }
+
+    // Method to get the items in the basket
     getBasketItems() {
         return this.items;
     }
-
 }
 
 module.exports = Basket;

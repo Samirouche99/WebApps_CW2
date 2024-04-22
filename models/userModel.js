@@ -12,7 +12,6 @@ class User {
 
 class UserDAO {
     static instance;
-
     constructor(dbFilePath) {
         if (UserDAO.instance) {
             return UserDAO.instance;
@@ -21,13 +20,13 @@ class UserDAO {
         UserDAO.instance = this;
     }
 
+    // Method to initialize the database with default users
     init() {
         const defaultUsers = [
             { username: 'Peter', password: '12345678' },
             { username: 'Ann', password: 'password' },
             { username: 'admin', password: 'adminPassword', isAdmin: true }
         ];
-
         defaultUsers.forEach(user => {
             this.lookup(user.username, (err, existingUser) => {
                 if (!existingUser) {
@@ -37,6 +36,7 @@ class UserDAO {
         });
     }
 
+    // Method to create a new user
     create(username, password, isAdmin = false) {
         bcrypt.hash(password, saltRounds, (err, hash) => {
             if (err) {
@@ -54,6 +54,7 @@ class UserDAO {
         });
     }
     
+    // Method to lookup a user by username
     lookup(username, cb) {
         this.db.find({ 'username': username }, function (err, entries) {
             if (err || entries.length === 0) {
@@ -64,6 +65,7 @@ class UserDAO {
         });
     }
 
+    // Method to get all users
     getAllUsers(cb) {
         this.db.find({}, (err, docs) => {
             if (err) {
@@ -73,7 +75,8 @@ class UserDAO {
             }
         });
     }
-
+    
+    // Method to delete a user by userId
     deleteUser(userId, cb) {
         this.db.remove({ _id: userId }, {}, (err, numRemoved) => {
             if (err) cb(err);
@@ -82,7 +85,7 @@ class UserDAO {
     }
 }
 
-const dao = new UserDAO('path/to/users.db');  // Ensure path is correctly set
+const dao = new UserDAO('path/to/users.db');  
 dao.init();
 
 module.exports = dao;
